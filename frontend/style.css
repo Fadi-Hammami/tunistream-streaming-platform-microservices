@@ -1,0 +1,68 @@
+/* style.css – uniquement ce que Tailwind ne couvre pas */
+
+.form-input {
+    width: 100%;
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 0.5rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.875rem;
+    color: #fff;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.form-input option {
+    background: #1f2937;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #9ca3af;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Badge plan */
+.badge-basic {
+    background: #1e3a5f;
+    color: #60a5fa;
+    padding: 0.15rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.badge-premium {
+    background: #3b1f2b;
+    color: #f87171;
+    padding: 0.15rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+/* Tab actif navbar */
+.tab-active {
+    background: #dc2626;
+    color: #fff !important;
+}
+
+/* Carte catalogue hover */
+.card-contenu {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-contenu:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+}

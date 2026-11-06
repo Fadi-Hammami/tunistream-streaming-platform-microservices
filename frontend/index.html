@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>TuniStream – Streaming Culturel Tunisien</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gray-950 text-white min-h-screen">
+
+    <!-- ── NAVBAR ───────────────────────────────────────────── -->
+    <nav class="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
+                <span class="font-black text-xs">TS</span>
+            </div>
+            <span class="font-bold text-lg text-red-400 tracking-widest">TuniStream</span>
+        </div>
+
+        <!-- Tabs navigation -->
+        <div id="navTabs" class="hidden flex gap-1 text-sm">
+            <button onclick="showSection('catalogue')" id="tab-catalogue"
+                class="tab-btn px-4 py-1.5 rounded text-gray-400 hover:text-white transition">Catalogue</button>
+            <button onclick="showSection('abonnement')" id="tab-abonnement"
+                class="tab-btn px-4 py-1.5 rounded text-gray-400 hover:text-white transition">Abonnement</button>
+            <button onclick="showSection('paiement')" id="tab-paiement"
+                class="tab-btn px-4 py-1.5 rounded text-gray-400 hover:text-white transition">Paiement</button>
+            <button onclick="showSection('stats')" id="tab-stats"
+                class="tab-btn px-4 py-1.5 rounded text-gray-400 hover:text-white transition admin-only hidden">Stats
+                Admin</button>
+        </div>
+
+        <div id="userBar" class="hidden flex items-center gap-3 text-sm">
+            <span class="text-gray-400">
+                <span id="navNom" class="text-white font-semibold"></span>
+                <span id="navRole" class="text-red-400 ml-1 text-xs"></span>
+            </span>
+            <button onclick="logout()" class="bg-gray-700 hover:bg-red-600 px-3 py-1 rounded text-xs transition">
+                Déconnexion
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── SECTION AUTH ─────────────────────────────────────── -->
+    <section id="sectionAuth" class="max-w-md mx-auto mt-20 px-4">
+
+        <div class="text-center mb-8">
+            <div class="text-5xl mb-3">🎬</div>
+            <h1 class="text-3xl font-bold text-red-400">TuniStream</h1>
+            <p class="text-gray-400 text-sm mt-1">Streaming culturel tunisien</p>
+        </div>
+
+        <!-- Onglets -->
+        <div class="flex mb-5 bg-gray-900 rounded-xl overflow-hidden border border-gray-800">
+            <button onclick="showTab('login')" id="tab-login"
+                class="flex-1 py-3 text-sm font-semibold bg-red-600 text-white transition">
+                Connexion
+            </button>
+            <button onclick="showTab('register')" id="tab-register"
+                class="flex-1 py-3 text-sm font-semibold text-gray-400 hover:text-white transition">
+                Inscription
+            </button>
+        </div>
+
+        <!-- LOGIN -->
+        <div id="formLogin" class="bg-gray-900 rounded-xl border border-gray-800 p-6 space-y-4">
+            <div>
+                <label class="form-label">Email</label>
+                <input type="email" id="login-email" placeholder="votre@email.com" class="form-input">
+            </div>
+            <div>
+                <label class="form-label">Mot de passe</label>
+                <input type="password" id="login-mdp" placeholder="••••••••" class="form-input">
+            </div>
+            <p id="login-error" class="text-red-400 text-xs hidden"></p>
+            <button onclick="login()"
+                class="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition">
+                Se connecter
+            </button>
+        </div>
+
+        <!-- REGISTER -->
+        <div id="formRegister" class="hidden bg-gray-900 rounded-xl border border-gray-800 p-6 space-y-4">
+            <div>
+                <label class="form-label">Nom complet</label>
+                <input type="text" id="reg-nom" placeholder="Votre nom" class="form-input">
+            </div>
+            <div>
+                <label class="form-label">Email</label>
+                <input type="email" id="reg-email" placeholder="votre@email.com" class="form-input">
+            </div>
+            <div>
+                <label class="form-label">Mot de passe</label>
+                <input type="password" id="reg-mdp" placeholder="••••••••" class="form-input">
+            </div>
+            <div>
+                <label class="form-label">Rôle</label>
+                <select id="reg-role" class="form-input">
+                    <option value="abonne">Abonné</option>
+                    <option value="admin">Administrateur</option>
+                </select>
+            </div>
+            <p id="reg-error" class="text-red-400 text-xs hidden"></p>
+            <button onclick="register()"
+                class="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition">
+                Créer mon compte
+            </button>
+        </div>
+
+    </section>
+
+    <!-- ── SECTION CATALOGUE ────────────────────────────────── -->
+    <section id="sectionCatalogue" class="hidden max-w-6xl mx-auto px-6 py-8">
+
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold">🎬 Catalogue</h2>
+            <!-- Filtre type -->
+            <div class="flex gap-2 text-sm">
+                <button onclick="chargerCatalogue('')"
+                    class="filtre-btn px-3 py-1 rounded bg-gray-700 hover:bg-red-600 transition">Tout</button>
+                <button onclick="chargerCatalogue('film')"
+                    class="filtre-btn px-3 py-1 rounded bg-gray-700 hover:bg-red-600 transition">Films</button>
+                <button onclick="chargerCatalogue('serie')"
+                    class="filtre-btn px-3 py-1 rounded bg-gray-700 hover:bg-red-600 transition">Séries</button>
+                <button onclick="chargerCatalogue('documentaire')"
+                    class="filtre-btn px-3 py-1 rounded bg-gray-700 hover:bg-red-600 transition">Docs</button>
+                <button onclick="chargerCatalogue('concert')"
+                    class="filtre-btn px-3 py-1 rounded bg-gray-700 hover:bg-red-600 transition">Concerts</button>
+            </div>
+        </div>
+
+        <!-- Formulaire ajout contenu (admin only) -->
+        <div id="zoneAdmin" class="hidden mb-6">
+            <button onclick="toggleFormContenu()"
+                class="mb-4 bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                ＋ Ajouter un contenu
+            </button>
+            <div id="formContenu"
+                class="hidden bg-gray-900 border border-gray-700 rounded-xl p-5 grid grid-cols-2 gap-4">
+                <div>
+                    <label class="form-label">Titre</label>
+                    <input type="text" id="c-titre" placeholder="Titre du contenu" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Type</label>
+                    <select id="c-type" class="form-input">
+                        <option value="film">Film</option>
+                        <option value="serie">Série</option>
+                        <option value="documentaire">Documentaire</option>
+                        <option value="concert">Concert</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="form-label">Description</label>
+                    <input type="text" id="c-desc" placeholder="Description" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Durée (min)</label>
+                    <input type="number" id="c-duree" placeholder="90" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Année</label>
+                    <input type="number" id="c-annee" placeholder="2024" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Accès Plan</label>
+                    <select id="c-plan" class="form-input">
+                        <option value="basic">Basic</option>
+                        <option value="premium">Premium</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Réalisateur</label>
+                    <input type="text" id="c-real" placeholder="Nom réalisateur" class="form-input">
+                </div>
+                <div class="col-span-2">
+                    <button onclick="ajouterContenu()"
+                        class="w-full py-2 bg-red-600 hover:bg-red-500 rounded-lg font-semibold transition">
+                        Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grille catalogue -->
+        <div id="gridCatalogue" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <p class="text-gray-500 col-span-4 text-center py-8">Chargement...</p>
+        </div>
+
+    </section>
+
+    <!-- ── SECTION ABONNEMENT ───────────────────────────────── -->
+    <section id="sectionAbonnement" class="hidden max-w-3xl mx-auto px-6 py-8">
+
+        <h2 class="text-2xl font-bold mb-6">💎 Plans d'abonnement</h2>
+
+        <!-- Mon plan actuel -->
+        <div id="monPlan" class="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4 text-sm"></div>
+
+        <!-- Bouton résiliation (affiché dynamiquement si abonnement actif) -->
+        <div id="zoneResiliation" class="hidden mb-6 text-right">
+            <button onclick="resilier()"
+                class="text-xs text-red-400 border border-red-800 hover:bg-red-900 hover:text-white px-4 py-1.5 rounded-lg transition">
+                🚫 Résilier mon abonnement
+            </button>
+        </div>
+
+        <!-- Les 2 plans -->
+        <div class="grid grid-cols-2 gap-6">
+
+            <!-- BASIC -->
+            <div class="bg-gray-900 border border-gray-700 rounded-xl p-6 flex flex-col">
+                <div class="text-lg font-bold text-white mb-1">Basic</div>
+                <div class="text-3xl font-black text-red-400 mb-4">9 <span
+                        class="text-lg font-normal text-gray-400">DT/mois</span></div>
+                <ul class="text-sm text-gray-300 space-y-2 flex-1 mb-6">
+                    <li>✅ Films tunisiens</li>
+                    <li>✅ Documentaires</li>
+                    <li>❌ Séries</li>
+                    <li>❌ Concerts</li>
+                </ul>
+                <button onclick="souscrire('basic')"
+                    class="w-full py-2 bg-gray-700 hover:bg-red-600 rounded-lg font-semibold text-sm transition">
+                    Choisir Basic
+                </button>
+            </div>
+
+            <!-- PREMIUM -->
+            <div class="bg-gray-900 border border-red-600 rounded-xl p-6 flex flex-col relative">
+                <div
+                    class="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-600 text-xs font-bold px-3 py-0.5 rounded-full">
+                    POPULAIRE
+                </div>
+                <div class="text-lg font-bold text-white mb-1">Premium</div>
+                <div class="text-3xl font-black text-red-400 mb-4">19 <span
+                        class="text-lg font-normal text-gray-400">DT/mois</span></div>
+                <ul class="text-sm text-gray-300 space-y-2 flex-1 mb-6">
+                    <li>✅ Films tunisiens</li>
+                    <li>✅ Documentaires</li>
+                    <li>✅ Séries</li>
+                    <li>✅ Concerts</li>
+                </ul>
+                <button onclick="souscrire('premium')"
+                    class="w-full py-2 bg-red-600 hover:bg-red-500 rounded-lg font-semibold text-sm transition">
+                    Choisir Premium
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ── SECTION PAIEMENT ─────────────────────────────────── -->
+    <section id="sectionPaiement" class="hidden max-w-lg mx-auto px-6 py-8">
+
+        <h2 class="text-2xl font-bold mb-6">💳 Paiement</h2>
+
+        <div class="bg-gray-900 border border-gray-700 rounded-xl p-6 space-y-4 mb-6">
+            <div>
+                <label class="form-label">Plan</label>
+                <select id="p-plan" class="form-input">
+                    <option value="basic">Basic – 9 DT</option>
+                    <option value="premium">Premium – 19 DT</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Méthode</label>
+                <select id="p-methode" class="form-input">
+                    <option value="carte">Carte bancaire</option>
+                    <option value="virement">Virement</option>
+                </select>
+            </div>
+            <button onclick="payer()" class="w-full py-2.5 bg-red-600 hover:bg-red-500 rounded-lg font-bold transition">
+                Confirmer le paiement
+            </button>
+        </div>
+
+        <!-- Historique paiements -->
+        <h3 class="font-semibold text-gray-300 mb-3">Historique</h3>
+        <div id="listePaiements" class="space-y-2 text-sm"></div>
+
+    </section>
+
+    <!-- ── SECTION STATS (admin) ────────────────────────────── -->
+    <section id="sectionStats" class="hidden max-w-4xl mx-auto px-6 py-8">
+
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold">📊 Statistiques</h2>
+            <button onclick="chargerStats()" class="text-xs text-red-400 hover:underline">🔄 Actualiser</button>
+        </div>
+
+        <div id="gridStats" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <p class="text-gray-500 col-span-4 text-center py-8">Chargement...</p>
+        </div>
+
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

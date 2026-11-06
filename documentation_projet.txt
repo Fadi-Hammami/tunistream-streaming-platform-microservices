@@ -1,0 +1,79 @@
+TuniStream - Documentation de l'Architecture du Projet
+
+==================================================
+1. VUE D'ENSEMBLE
+==================================================
+TuniStream est une plateforme de streaming culturel tunisien.
+Le projet adopte une architecture orientée "Microservices" pour le Backend et un Frontend de type "Single Page Application" (Vanilla JS) utilisant le framework Tailwind CSS pour la conception de l'Interface Utilisateur.
+
+La configuration actuelle (sans API Gateway) implique que le Frontend communique "directement" avec chaque microservice en connaissant et en utilisant le port dédié de chaque service.
+
+==================================================
+2. ARCHITECTURE BACKEND : LES MICROSERVICES
+==================================================
+Au lieu d'avoir une grosse application monolithique qui gère tout, le backend de TuniStream est divisé en plusieurs petits services indépendants. Chaque microservice gère un domaine spécifique, ce qui facilite la maintenance, la scalabilité et l'isolation des erreurs.
+
+Liste des 5 microservices déployés :
+- Catalogue Service (Port 3001) : Gère les contenus (films, séries, concerts, documentaires).
+- Auth Service (Port 3002) : Gère l'inscription, la connexion des utilisateurs, et la génération de tokens JWT.
+- Abonnement Service (Port 3003) : Gère les plans d'abonnements (basic, premium) et les dates d'expiration.
+- Paiement Service (Port 3004) : Gère l'historique et le traitement fictif des paiements (génération d'une référence).
+- Stats Service (Port 3005) : Service d'agrégation. Il récupère les données des autres services en temps réel afin d'afficher le "Dashboard Admin", puisqu'il ne possède pas sa propre DB de métriques.
+
+Structure Interne Typique d'un Microservice :
+- server.js : Le point d'entrée. Il initialise Express.js, configure MongoDB (Mongoose), le CORS, et lance l'écoute sur son port.
+- models/ : Les fichiers Mongoose (ex: Contenu.js, Abonnement.js) qui définissent la structure (le schéma) de la collection en base de données BSON/MongoDB.
+- routes/ : Définition des terminaux d'API (EndPoints). Ex: POST /api/auth/login.
+- middleware/ (authMiddleware.js) : Code interceptant les requêtes entrantes pour s'assurer des droits de l'utilisateur.
+
+==================================================
+3. SÉCURITÉ : LE TOKEN JWT & AUTHMIDDLEWARE
+==================================================
+Pour l'authentification et l'autorisation, le projet utilise les "JSON Web Tokens (JWT)".
+
+Comment ça marche ?
+1. Authentification : L'utilisateur se connecte (\`POST /login\`) via l'Auth-Service.
+2. Génération JWT : Le serveur vérifie le mot de passe et génère un "Token crypté" contenant l'ID et le rôle (abonné ou admin) de l'utilisateur.
+3. Conservation Client : Le Frontend (script.js) sauvegarde ce JWT en mémoire locale.
+4. Validation via authMiddleware : 
+   À chaque fois que l'utilisateur veut faire une action sécurisée (ex: Souscrire un plan sur le port 3003), le Frontend envoie son JWT dans l'entête HTTP de la requête (\`Authorization: Bearer <token>\`).
+   Le fichier \`authMiddleware.js\` (présent dans chaque microservice sécurisé) va décrypter le token (via \`JWT_SECRET\`). 
+   - S'il est valide, le service exécute la fonction demandée (\`next()\`).
+   - S'il est invalide, ou falsifié, le serveur retourne une erreur HTTP 401 ou 403.
+
+==================================================
+4. ARCHITECTURE FRONTEND & SYSTEME DE ROUTAGE
+==================================================
+Le frontend n'utilise pas un Framework lourd (comme React ou Angular) pour le routage, mais il se repose sur du pur JavaScript (Vanilla JS) afin d'offrir une "Single Page Application (SPA)".
+
+Routage en Single Page (Navigation Locale) :
+- Tout se passe dans une seule page web : \`index.html\`.
+- Différentes sections (Auth, Catalogue, Abonnement, Stats) sont codées sous la forme de balises \`<section>\` avec des identifiants (ID).
+- Au chargement, seule la page Login est visible. Les autres sont cachées par défaut (grâce à la classe de style 'hidden').
+- Lorsque l'utilisateur clique sur un onglet du menu, la fonction \`showSection()\` dans \`script.js\` masque toutes les sections et retire la mention 'hidden' de la section souhaitée. 
+-> L'utilisateur a l'impression de charger une nouvelle page web, sans aucun rechargement du navigateur !
+
+Routage sans API Gateway (Appels API) :
+Pour communiquer avec le Backend, au lieu d'envoyer toutes ses requêtes vers "localhost:3000", le frontend stocke un objet \`API\` (dans script.js) qui cartographie directement les ports des différents microservices.
+Ex: fetch('http://localhost:3003/api/abonnements')
+Avantage : Moins d'intermédiaires, temps de latence réduit.
+Inconvénient : Le client doit connaître l'architecture complète du serveur (liste des URLs/Ports), et gère toutes les erreurs réseau lui-même.
+
+==================================================
+5. DESIGN ET CSS : LE PRINCIPE DE TAILWIND
+==================================================
+Le design luxueux et noir/rouge (Netflix-like) repose presque exclusivement sur le framework "Tailwind CSS".
+
+Utilité de Tailwind (Utility-First) :
+Contrairement au CSS classique, Tailwind ne s'appuie pas sur des classes globales (ex: .bouton-rouge { background: red; }).
+Tailwind utilise des "Classes Utilitaires". Dans \`index.html\`, on rajoute directement la description du style souhaité sur les balises HTML :
+Exemple : \`<button class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg">\`
+- bg-red-600 : Fond rouge.
+- hover:bg-red-500 : Fond au survol.
+- text-white : Police blanche.
+- px-4 py-2 : Marges internes (padding) X et Y.
+- rounded-lg : Bords arrondis.
+
+Cette architecture donne deux grands avantages au projet :
+1. Vitesse de développement du design considérablement accrue.
+2. \`style.css\` reste très propre, car il n'est utilisé que pour quelques customisations complexes dont Tailwind a du mal à se charger élégamment (ex: la coloration de fond des bordures \`form-input:focus\`, ou les balises Badges dynamiques).
